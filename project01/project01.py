@@ -5,9 +5,9 @@ from pprint import pprint
 # Modify this function signature and fill in the details
 #Begin by spliting the data by tabs, then split the 8th column by semicolons, 
 # and finally split each of those by equals signs to create a dictionary of key-value pairs.
-def parse_line(str):
+def parse_line(line):
     columns = str.split("\t")
-    info = columns[7]
+    info = columns[-1]
     info_pairs = info.split(";")
     
     af_exac_check = None
