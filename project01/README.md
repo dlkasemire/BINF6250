@@ -39,7 +39,7 @@ Description of the stumbling blocks the team experienced
 Group leader's reflection on the project
 
 ## Other member
-Other member's reflection on the project
+Abby - During this project I encountered a lot of hurdles beginning with using the GitHub platform to interact and collaborate with my teammates. After talking with my team and attending office hours I managed to get a better grip on pull requests and forks. As for the analysis itself it was difficult for me at first to conceptualize the format of the file and the edits that needed to be made in the code. But after going over the commands with Claude and asking how these splits from ";" and "|" affected the file it made a lot more sense. Writing the pseudocode and doing the order of operations neccesary to obtain the correct answer came easier to us as a group. 
 
 # Generative AI Appendix
-As per the syllabus
+Claude Anthropic Version 2.110.0 Sonnet 5, I used Claude to assit me in determining the correct way to parse the data file so that the values could be determined. The promt that I used to generate this data was " " and " ". This allowed me to understand how to format my code in order to separate and group my vairubles into key values. 
