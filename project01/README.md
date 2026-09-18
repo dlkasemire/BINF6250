@@ -42,6 +42,43 @@ Learned to collaborate on Github.
 Successfully extracted key-value pairs
 Understood the importance of reading line per line instead of the entire file, especially for large files.
 Writing effective pseudocode for the functions.
+We successfully produced the  disease count dictionary 
+{'Cardiovascular_phenotype': 14,
+ 'Cleft_palate': 1,
+ 'Congenital_myasthenic_syndrome': 3,
+ 'Developmental_regression': 1,
+ 'Dystonia': 1,
+ 'EEG_with_generalized_epileptiform_discharges': 1,
+ 'Ehlers-Danlos_syndrome,_progeroid_type,_2': 2,
+ 'Expressive_language_delay': 1,
+ 'Failure_to_thrive': 1,
+ 'Global_developmental_delay': 2,
+ 'Growth_delay': 1,
+ 'Hypothyroidism': 1,
+ 'Idiopathic_generalized_epilepsy': 14,
+ 'Immunodeficiency_16': 2,
+ 'Immunodeficiency_38_with_basal_ganglia_calcification': 3,
+ 'Inability_to_walk': 1,
+ 'Inborn_genetic_diseases': 2,
+ 'Infantile_axial_hypotonia': 1,
+ 'Intellectual_disability': 1,
+ 'Limb_hypertonia': 1,
+ 'Marfanoid_habitus': 1,
+ 'Mental_retardation,_autosomal_dominant_42': 1,
+ 'Multifocal_epileptiform_discharges': 1,
+ 'Muscular_hypotonia': 2,
+ 'Myasthenic_syndrome,_congenital,_8': 79,
+ 'Myelodysplastic_syndrome': 1,
+ 'Neurodevelopmental_Disability': 2,
+ 'Nystagmus': 1,
+ 'Seizures': 2,
+ 'Severe_Myopia': 1,
+ 'Shprintzen-Goldberg_syndrome': 37,
+ 'Spinocerebellar_ataxia_21': 1,
+ 'Spondyloepimetaphyseal_dysplasia_with_joint_laxity': 1,
+ 'Strabismus': 1,
+ 'Upper_limb_hypertonia': 1,
+ 'hypotonia': 2}.
 
 # Struggles
 Faced a number of issues with Github.

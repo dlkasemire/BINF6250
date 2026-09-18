@@ -71,7 +71,7 @@ def read_file(filename):
 
     counts = {} # store disease name, number of times seen
 
-    with open("clinvar_20190923_short.vcf", "r") as f: # open file
+    with open(filename, "r") as f: # open file
         for line in f:
             if line.startswith("#"): # lines starting with # are headers
                 continue # so skip/ignore them
