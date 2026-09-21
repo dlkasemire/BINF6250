@@ -10,7 +10,7 @@ as listed in the CLNDN field.
 Functions:
     parse_line(line)-extracts disease names from a single VCF line
     read_file(filename)-reads a VCF file line by line and returns
-                            a dictionary of disease counts
+                      a dictionary of disease counts
 """
 
 from pprint import pprint

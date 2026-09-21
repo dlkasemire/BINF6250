@@ -1,6 +1,7 @@
 # Introduction
 This project parses a Variant Call Format (VCF) file from ClinVar. 
-AF_EXAC refers to the allele frequency of a variant as observed in the ExAC (Exome Aggregation Consortium) database (how common or rare that genetic variant is in the general population.) 
+AF_EXAC refers to the allele frequency of a variant as observed in the ExAC (Exome Aggregation Consortium) 
+database (how common or rare that genetic variant is in the general population.) 
 CLNDN lists the disease name(s) ClinVar associates with that variant.
 The goal of the project is to identify rare genetic variants with AF_EXAC less than 0.0001, 
 and tally the disease (CLNDN) associated with them across the dataset.
