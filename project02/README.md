@@ -114,5 +114,5 @@ Claude (Anthropic), Version 2.110.0, Sonnet 5, was used to assist in debugging t
 We realized the code didn't seem to work as intended after "Generate Text for Markov Model", and it looped endlessly. 
 This seemed to have something to do with the seeds being used, since get_next_word resets the random seed to the same fixed value on every call, meaning revisiting the same word or 
 state later in a sentence always produced the exact same "random" output as before on repetitive text.
-This created a cycle that never reached the end marker, causing the loop to run forever. 
+This created a cycle that never reached the end marker, causing the loop to run forever.
 When seeds were removed from being reset on every call, the code worked as intended.
