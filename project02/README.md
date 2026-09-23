@@ -50,7 +50,6 @@ SET text = "one fish two fish red fish blue red fish blue"
 CALL build_markov_model(markov_model, text, order=2) and store the result back in markov_model
 DISPLAY markov_model
 
-
 FUNCTION get_next_word(current_word, markov_model, seed)
 	Set random seed based on seed provided
 Values dictionary of potential next words (keys) and their counts (values) associated with the current word
