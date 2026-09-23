@@ -100,7 +100,7 @@ When seeds are removed the code seems to work.
 
 # Personal reflections
 ## Group Leader
-Working on the project alone at the beginning was challenging, but it helped me understand the project better. 
+Dianah: Working on the project alone at the beginning was challenging, but it helped me understand the project better. 
 Once Matthew joined, we were able to work through some of the problems together, including the indentation errors and the infinite loop. 
 This experience taught me to be flexible and patient when working through unexpected changes in a group.
 
