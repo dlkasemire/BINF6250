@@ -10,7 +10,7 @@ Building the model
 (build_markov_model):
 Add artificial states for start (*S*) and end (*E*).
 For each word or N-word window in the text:
-    increment markov_model[state][next_word]
+    increment markov_model[state][next_word
 Return markov_model
 
 Selecting the next word
