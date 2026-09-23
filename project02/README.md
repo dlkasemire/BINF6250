@@ -95,7 +95,7 @@ Matthew: I struggled with GitHub/VS code interface and ended up having to downlo
 I could not successfully pull Dianah’s branch into my own vs code environment. I could see the files, but they weren’t editable. 
 I had to copy the raw Jupyter Notebook text from my local file to push to GitHub. 
 I also struggled to catch up after starting the class late, and had to learn about the model, GitHub, Jupyter Notebooks, and refresh my python all at the same time. 
-The code doesn’t seem to work as intended after “Generate Text for Markov Model” as it loops endlessly. This seems to have something to do with the seeds used. 
+The code doesn’t seem to work as intended after "Generate Text for Markov Model" as it loops endlessly. This seems to have something to do with the seeds used. 
 When seeds are removed the code seems to work.
 
 # Personal reflections
