@@ -11,8 +11,8 @@ FUNCTION build_markov_model(markov_model, new_text):
     ADD '*S*' to the front of the list (marks start)
     ADD '*E*' to the end of the list (marks end)
     FOR each position i from 1 to end of the padded list:
-        state       = the word just before position i
-        next_word   = the word at position i
+        state = the word just before position i
+        next_word = the word at position i
             IF state has not been seen before:
             CREATE an empty tally sheet for state
         INCREMENT the count of next_word on state's tally sheet
