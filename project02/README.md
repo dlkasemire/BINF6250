@@ -29,7 +29,7 @@ PRINT markov_model
 
 Nth order Markov chain:
 FUNCTION build_markov_model(markov_model, text, order):
-    IF markov_model is empty/not given:
+    IF markov_model is None:
         CREATE an empty markov_model
     SPLIT text into a list of words
     ADD 'order' copies of '*S*' to the front of the list (marks start)
@@ -67,11 +67,11 @@ FUNCTION generate_random_text(markov_model, seed)
 		If it is not first order, set the current (start) state to *S* x order
 		If first order set to *S*
 	Create a list of words to add to
-	While the the end character (*E*) hasn’t been set to the next word
+	While the end character (*E*) hasn’t been set to the next word
 		Call the next word function with the current state, model, and seed
 		If the next word is the end character end the loop
 		If else, add the next word to the list 
-		Increment the current state to the next word or tuple of words
+		Update the current state to the next word or tuple of words
 Return a joined list of words
 
 
@@ -111,9 +111,5 @@ I also was able to make address some bugs which I think improved functionality.
 Additionally, we worked well as a team and Dianah also helped me get up to speed on other elements of the class.
 
 # Generative AI Appendix
-Claude (Anthropic), Version 2.110.0, Sonnet 5, was used to assist in debugging the "Generate Text from Markov Model" chunk of code. 
-We realized the code didn't seem to work as intended after "Generate Text for Markov Model", and it looped endlessly. 
-This seemed to have something to do with the seeds being used, since get_next_word resets the random seed to the same fixed value on every call, meaning revisiting the same word or 
-state later in a sentence always produced the exact same "random" output as before on repetitive text.
-This created a cycle that never reached the end marker, causing the loop to run forever.
-When seeds were removed from being reset on every call, the code worked as intended.
+We attempted to use Claude (Anthropic), Version 2.110.0, Sonnet 5, to assist in debugging the "Generate Text from Markov Model" chunk of code, 
+although we were not successful and did not proceed with the prompt.
