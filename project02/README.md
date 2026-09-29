@@ -2,6 +2,8 @@
 This project implements a Markov chain to process sentences.
 The project starts with a simple first-order model, where the next word depends only on the current word. 
 It then extends this idea to an Nth-order model, where the next word depends on the previous N words. 
+Once a model is built, it can also be used to generate new, randomly constructed text that follows the same 
+word-transition patterns learned from the training text.
 This is similar to how Markov chain models can be used in bioinformatics, 
 such as identifying coding regions in a genome by using higher-order models to capture patterns between codon triplets.
 
@@ -13,7 +15,7 @@ FUNCTION build_markov_model(markov_model, new_text):
     FOR each position i from 1 to end of the padded list:
         state = the word just before position i
         next_word = the word at position i
-            IF state has not been seen before:
+        IF state has not been seen before:
             CREATE an empty tally sheet for state
         INCREMENT the count of next_word on state's tally sheet
         (starting from 0 if it's the first time seeing this next_word)
