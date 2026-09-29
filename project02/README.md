@@ -77,7 +77,7 @@ Return a joined list of words
 
 # Successes
 Successfully implemented a first order Markov model that matched the expected output.
-Successfully Got the Nth-order version working by using word-pairs as dictionary keys instead of single words. 
+Successfully Got the Nth-order version working by using word-pairs as dictionary keys instead of single words. The output we got for the Nth order Markov was different than the expected output, but we beleive this is a result of the input text being slighly off, rather than a fault of the code.
 Traced a test sentence by hand and compared it to my code's output. They matched exactly, including repeated pairs and 
 pairs that led to different next-words at different points.
 Got the full generation pipeline working end-to-end on the toy Dr. Seuss example, producing valid generated sentences.
@@ -111,5 +111,4 @@ I also was able to make address some bugs which I think improved functionality.
 Additionally, we worked well as a team and Dianah also helped me get up to speed on other elements of the class.
 
 # Generative AI Appendix
-We attempted to use Claude (Anthropic), Version 2.110.0, Sonnet 5, to assist in debugging the "Generate Text from Markov Model" chunk of code, 
-although we were not successful and did not proceed with the prompt.
+We attempted to use Claude (Anthropic), Version 2.110.0, Sonnet 5, to assist in debugging the "Generate Text from Markov Model" chunk of code, which would run endlessly. We were not successful and did not proceed with the prompt. The problem was eventually fixed during peer reviews. 
