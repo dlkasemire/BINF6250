@@ -4,6 +4,8 @@
 This project implements the Smith-Waterman algorithm, a dynamic programming method for local pairwise sequence alignment that finds the highest-scoring shared region between two sequences under a customizable scoring system (defaults: match +1, mismatch -1, gap -1). The program fills a scoring matrix cell by cell, where each cell takes the largest of four options (up-left neighbor plus match or mismatch, up neighbor plus gap, left neighbor plus gap, or 0, which keeps scores from going negative), records the winning direction in a second matrix, and rebuilds the alignment by tracing those directions back from the highest score until it reaches a 0. The work is split across three functions: `cal_score()` scores one cell and returns its direction code (0 = END, 1 = DIAG, 2 = UP, 3 = LEFT), `traceback()` follows the directions to build the two aligned sequences, and `smith_waterman()` builds both NumPy matrices, fills them, finds and prints the best score, calls `traceback()`, and returns the results.  All required functionality described in the assignment instructions was completed. All three functions were implemented, and each was tested with a sanity check on a small example worked out by hand before the full program was run. Test 1 matches the expected output provided in the notebook, and Test 2, which has no expected output, was checked by reasoning through the scores in the printed matrix.
 
 # Pseudocode
+This pseudocode reflects the final code that was decided upon and not the original starting version.
+
 ### cal_score()
 ```
 Get this row's letter: seq1 at position (i - 1)
@@ -58,8 +60,11 @@ Return aligned_seq1, aligned_seq2
 ```
 rows = length of seq1 + 1
 cols = length of seq2 + 1
-score_matrix = grid of zeros, size rows x cols (whole numbers, dtype=int to avoid decimals)
-traceback_matrix = grid of zeros, size rows x cols (whole numbers 0, 1, 2, 3, dtype=int to avoid decimals)
+score_matrix = grid of zeros, size rows x cols (whole numbers, dtype=int)
+traceback_matrix = grid of zeros, size rows x cols (whole numbers 0, 1, 2, 3, dtype=int)
+
+max_score = 0
+max_pos = (0, 0)
 
 FOR i from 1 to rows - 1:
     FOR j from 1 to cols - 1:
@@ -67,23 +72,22 @@ FOR i from 1 to rows - 1:
         score_matrix at (i, j) = score
         traceback_matrix at (i, j) = move
 
-best_score = highest number in score_matrix
-max_pos = (row, column) where best_score is (if tied, keeps only the first one found)
+        IF score > max_score:
+            max_score = score
+            max_pos = (i, j)
+            (using ">" keeps only the first best cell found if there is a tie)
 
-IF best_score is 0: print that no local alignment was found
-
-print best_score
+print max_score
 
 aligned_seq1, aligned_seq2 = traceback(seq1, seq2, traceback_matrix, max_pos)
 
 Return aligned_seq1, aligned_seq2, score_matrix
 ```
 
-
 # Results Output
 ### Test 1: TACTTAG vs CACATTAA (Example from slides)
 ```
-Alignment score:  4.0
+Alignment score:  4
 AC-TTA
 ACATTA
 [[0 0 0 0 0 0 0 0 0]
