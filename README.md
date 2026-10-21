@@ -154,7 +154,6 @@ The printed matrix contains two cells with the best score of 10: one at row 10 /
 * It took practice to remember that the match score only applies to the diagonal move, while up and left always use the gap penalty.
 * Traceback was also a little confusing at first, especially understanding which sequence gets a gap when moving up or left and how the aligned sequences are built in the correct order.
 
-
 # Reflection and Adaptive Learning
 * Choosing the matrix type involved a trade-off. A whole-number matrix matches the expected output's formatting, but it silently truncates decimal gap penalties: with a gap of −0.5, it returns a score of 10 instead of the correct 11, with no error. We chose whole numbers to match the test cases, so the program assumes whole-number scoring values without handling the edge case we considered. A next step would be to keep the decimal matrix for scoring and convert it to whole numbers only for display when every value is whole, or to have the function warn the user if a decimal scoring value is passed in.
 * Because the starter materials contained inconsistencies, we learned not to treat the provided docstrings and examples as automatically correct. Checking a function's description against a small example worked by hand, and against the expected output, is what showed which version was right. We plan to do this check at the start of future projects, before writing code.
@@ -164,9 +163,6 @@ The printed matrix contains two cells with the best score of 10: one at row 10 /
 # Personal Reflections
 ## Group leader : Dianah Kasemire
 This was an interesting activity. At first, the pseudocode was hard to follow, and I struggled to turn it into code. What helped most was filling in the scoring matrix by hand for two short sequences, one cell at a time. Once I had done that manually, the pseudocode made sense, and each line of code matched a step I had already done myself. Tracing back through the table by hand also made the traceback function much easier to write. Meeting up with my team to discuss and work through the pseudocode together also helped a lot. Talking through each step made the algorithm clearer, and I’d use both approaches again for future problems.
-
-## Other member: Aamna Sheikh
-I think the most interesting part of this project was understanding how the scoring matrix and traceback work together to find the best local alignment. The scoring calculations were fairly straightforward once I understood what each direction represented, but traceback took a little more thought, especially figuring out which sequence gets a gap and how to build the aligned sequences in the correct order. I found it helpful to look through my group members code alongside our pseudocode and work through how the different functions connected, rather than just focusing on each function individually.
 
 ## Other member: Aamna Sheikh
 I think the most interesting part of this project was understanding how the scoring matrix and traceback work together to find the best local alignment. The scoring calculations were fairly straightforward once I understood what each direction represented, but traceback took a little more thought, especially figuring out which sequence gets a gap and how to build the aligned sequences in the correct order. I found it helpful to look through my group members code alongside our pseudocode and work through how the different functions connected, rather than just focusing on each function individually.
