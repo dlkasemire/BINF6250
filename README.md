@@ -4,6 +4,8 @@
 This project implements the Smith-Waterman algorithm, a dynamic programming method for local pairwise sequence alignment that finds the highest-scoring shared region between two sequences under a customizable scoring system (defaults: match +1, mismatch -1, gap -1). The program fills a scoring matrix cell by cell, where each cell takes the largest of four options (up-left neighbor plus match or mismatch, up neighbor plus gap, left neighbor plus gap, or 0, which keeps scores from going negative), records the winning direction in a second matrix, and rebuilds the alignment by tracing those directions back from the highest score until it reaches a 0. The work is split across three functions: `cal_score()` scores one cell and returns its direction code (0 = END, 1 = DIAG, 2 = UP, 3 = LEFT), `traceback()` follows the directions to build the two aligned sequences, and `smith_waterman()` builds both NumPy matrices, fills them, finds and prints the best score, calls `traceback()`, and returns the results.  All required functionality described in the assignment instructions was completed. All three functions were implemented, and each was tested with a sanity check on a small example worked out by hand before the full program was run. Test 1 matches the expected output provided in the notebook, and Test 2, which has no expected output, was checked by reasoning through the scores in the printed matrix.
 
 # Pseudocode
+This pseudocode reflects the final code that was decided upon and not the original starting version.
+
 ### cal_score()
 ```
 Get this row's letter: seq1 at position (i - 1)
@@ -58,8 +60,11 @@ Return aligned_seq1, aligned_seq2
 ```
 rows = length of seq1 + 1
 cols = length of seq2 + 1
-score_matrix = grid of zeros, size rows x cols (whole numbers, dtype=int to avoid decimals)
-traceback_matrix = grid of zeros, size rows x cols (whole numbers 0, 1, 2, 3, dtype=int to avoid decimals)
+score_matrix = grid of zeros, size rows x cols (whole numbers, dtype=int)
+traceback_matrix = grid of zeros, size rows x cols (whole numbers 0, 1, 2, 3, dtype=int)
+
+max_score = 0
+max_pos = (0, 0)
 
 FOR i from 1 to rows - 1:
     FOR j from 1 to cols - 1:
@@ -67,23 +72,22 @@ FOR i from 1 to rows - 1:
         score_matrix at (i, j) = score
         traceback_matrix at (i, j) = move
 
-best_score = highest number in score_matrix
-max_pos = (row, column) where best_score is (if tied, keeps only the first one found)
+        IF score > max_score:
+            max_score = score
+            max_pos = (i, j)
+            (using ">" keeps only the first best cell found if there is a tie)
 
-IF best_score is 0: print that no local alignment was found
-
-print best_score
+print max_score
 
 aligned_seq1, aligned_seq2 = traceback(seq1, seq2, traceback_matrix, max_pos)
 
 Return aligned_seq1, aligned_seq2, score_matrix
 ```
 
-
 # Results Output
 ### Test 1: TACTTAG vs CACATTAA (Example from slides)
 ```
-Alignment score:  4.0
+Alignment score:  4
 AC-TTA
 ACATTA
 [[0 0 0 0 0 0 0 0 0]
@@ -95,8 +99,6 @@ ACATTA
  [0 0 1 0 1 1 2 4 3]
  [0 0 0 0 0 0 1 3 3]]
 ```
-
-The alignment and every matrix value match the expected output provided in the notebook. The matrix prints as `0.` rather than `0` because the scoring matrix holds decimals, but the values are identical.
 
 ### Test 2: GGGGAAAAAAAAAAAACCCC vs GGGGAAAAAACCCC
 ```
@@ -129,6 +131,16 @@ GGGGAAAAAA
 The printed matrix contains two cells with the best score of 10: one at row 10 / column 10, which traces back to `GGGGAAAAAA`, and one in the bottom-right corner, which would trace back to `AAAAAACCCC`.
 
 # Successes
+* We agreed upon pseudocode written by Ildiko, and each of us wrote code that varied in different functions. The two implementations produced identical alignments and scores on both notebook tests, which served as an informal cross-check on correctness. The final version uses Dianah's approach of tracking the highest score while the matrix fills, which avoided extra NumPy functions and made `smith_waterman()` simpler.
+* Two implementations also handled the diagonal score differently. Dianah's `cal_score()` first stores the match or mismatch value in its own variable (`pair_score`) and then adds it to the up-left neighbor in a single line, while Ildiko's version does the addition separately inside each branch of the `if`/`else`. Both give the same result, and comparing them showed how the same pseudocode step can be written more than one way.
+* Aamna created a different approach to `traceback()`: building each aligned sequence backward in a list and reversing it once at the end, instead of adding each letter to the front of a string as in Ildiko's and Dianah's versions. Both approaches put the letters in the correct order.
+* The final output for Test 1 matches the expected output exactly, including the whole-number formatting of the scoring matrix.
+* The scoring values are customizable, and the `cal_score()` test check uses non-default scoring (match +2, mismatch −1, gap −2) to confirm that custom values are applied correctly.
+
+# Struggles
+* The starter materials contained inconsistencies that had to be resolved by decision rather than followed as written. The `traceback()` docstring reverses the gap directions (an UP move puts the gap in seq2, not seq1), and the instructions ask for the alignment score to be printed even though the provided function skeletons have no place for it. Our code follows the correct gap directions, and the score print was added to `smith_waterman()`.
+* Test 2 has no expected output and contains two cells tied for the best score. The program reports only the first one it finds, so a second, equally good alignment (`AAAAAACCCC`) goes unreported. Checking this result required reasoning through the printed matrix rather than comparing against a known answer.
+* Keeping the shared branch up to date took coordination. Work that is saved or committed locally but never pushed does not appear in a pull request, so the repository did not always reflect everyone's latest work.  We are still improving our GitHub skills.
 * All three functions (cal_score, traceback and smith_waterman) work together, and our output matches the expected output for the slide example (AC-TTA / ACATTA).
 * Filling in the scoring matrix and tracing back by hand first made the pseudocode much easier to understand and turn into code.
 * Meeting as a team to discuss and work through the pseudocode helped us understand each step.
@@ -143,6 +155,10 @@ The printed matrix contains two cells with the best score of 10: one at row 10 /
 * Traceback was also a little confusing at first, especially understanding which sequence gets a gap when moving up or left and how the aligned sequences are built in the correct order.
 
 # Reflection and Adaptive Learning
+* Choosing the matrix type involved a trade-off. A whole-number matrix matches the expected output's formatting, but it silently truncates decimal gap penalties: with a gap of −0.5, it returns a score of 10 instead of the correct 11, with no error. We chose whole numbers to match the test cases, so the program assumes whole-number scoring values without handling the edge case we considered. A next step would be to keep the decimal matrix for scoring and convert it to whole numbers only for display when every value is whole, or to have the function warn the user if a decimal scoring value is passed in.
+* Because the starter materials contained inconsistencies, we learned not to treat the provided docstrings and examples as automatically correct. Checking a function's description against a small example worked by hand, and against the expected output, is what showed which version was right. We plan to do this check at the start of future projects, before writing code.
+* The tie in Test 2 showed that a single reported alignment is not always the whole answer. A next step would be to have `smith_waterman()` find every cell that holds the best score and trace back from each one, so all equally good alignments are reported.
+* For keeping the shared branch current, we plan to confirm that a pull request shows the changed files before letting the group know it's ready, and to pull from the upstream branch at the start of each work session.
 
 # Personal Reflections
 ## Group leader : Dianah Kasemire
@@ -159,10 +175,12 @@ Compared to graph algorithms, Smith-Waterman felt much easier to understand and 
 Even though the group's schedule had very little overlap for much collaborative work, we were able to meet for two short sessions and it was nice to reflect on our experience in the class together and not feel so alone in the fast pace and struggle to keep up with new difficult information every week.  It helped build confidence in the learning process without the need to master an outcome.
 
 # Generative AI Appendix
+Anthropic Claude Opus 5.5 and OpenAI ChatGPT were used for this project.
 Anthropic Claude Opus 5.5 and ChatGPT was used for this project.
 
-Ildiko is inexperienced with NumPy and used Claude to write the NumPy-specific code, since she did not yet know those functions: creating the scoring and traceback matrices (`np.zeros()`, including `dtype=int` for the traceback matrix), finding the best score and its position (`np.max()`, `np.argmax()`, and `np.unravel_index()`), and building the small test matrix for the `traceback()` sanity check (`np.array()`). Claude also explained how each of these functions works before it was added to the code.
+Ildiko - I am inexperienced with NumPy and used Claude to write the NumPy-specific code, since don't know those functions: creating the scoring and traceback matrices (`np.zeros()`, including `dtype=int` for the traceback matrix), finding the best score and its position (`np.max()`, `np.argmax()`, and `np.unravel_index()`), and building the small test matrix for the `traceback()` sanity check (`np.array()`). Claude also explained how each of these functions works before it was added to the code.  However, we did not end up using this part of code in the final project version because Dianah wrote a much simpler and cleaner version without those codes and it was nice to see two different ways of writing that portion.
 
 Dianah- I used Claude to understand the algorithm. It explained how Smith-Waterman works and walked me through filling in the scoring matrix and doing the traceback by hand on a small example. I filled in the cells myself, and Claude checked my answers and explained my mistakes. I then started writing the pseudocode and used it to check my steps. I wrote most of the lines myself, and for a few parts I was stuck on, Claude showed me the line and explained what it did. I also used it to understand the git errors when pushing and merging our team’s work.
 
+Aamna- I used ChatGPT throughout this project to help me understand both the biological purpose of sequence alignment and the Smith-Waterman algorithm itself. I understood what we needed to do for the assignment, but I didn't fully understand why we were doing it or what the results meant biologically. I always find it easier to approach coding problems when I understand the reasoning behind them, so a big part of my AI use was asking questions about the biology. I also used ChatGPT to help explain parts of my implementation too, particularly the traceback function, and to compare sections of our group members different approaches to the same ideas. I also created a pull request that somehow did not update my work on the PR branch and used it to understand what I did wrong. (I think I just did not save my file before pushing it. AI was not very helpful for this particular task).
 Aamna- I used ChatGPT throughout this project to help me understand both the biological purpose of sequence alignment and the Smith-Waterman algorithm itself. I understood what we needed to do for the assignment, but I didn't fully understand why we were doing it or what the results meant biologically. I always find it easier to approach coding problems when I understand the reasoning behind them, so a big part of my AI use was asking questions about the biology. I also used ChatGPT to help explain parts of my implementation too, particularly the traceback function, and to compare sections of our group members different approaches to the same ideas. I also created a pull request that somehow did not update my work on the PR branch and used it to understand what I did wrong. (I think I just did not save my file before pushing it. AI was not very helpful for this particular task).
