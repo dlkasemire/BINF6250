@@ -142,13 +142,11 @@ The printed matrix contains two cells with the best score of 10: one at row 10 /
 * It took practice to remember that the match score only applies to the diagonal move, while up and left always use the gap penalty.
 * Traceback was also a little confusing at first, especially understanding which sequence gets a gap when moving up or left and how the aligned sequences are built in the correct order.
 
-
 # Reflection and Adaptive Learning
 
 # Personal Reflections
 ## Group leader : Dianah Kasemire
 This was an interesting activity. At first, the pseudocode was hard to follow, and I struggled to turn it into code. What helped most was filling in the scoring matrix by hand for two short sequences, one cell at a time. Once I had done that manually, the pseudocode made sense, and each line of code matched a step I had already done myself. Tracing back through the table by hand also made the traceback function much easier to write. Meeting up with my team to discuss and work through the pseudocode together also helped a lot. Talking through each step made the algorithm clearer, and I’d use both approaches again for future problems.
-
 
 ## Other member: Aamna Sheikh
 I think the most interesting part of this project was understanding how the scoring matrix and traceback work together to find the best local alignment. The scoring calculations were fairly straightforward once I understood what each direction represented, but traceback took a little more thought, especially figuring out which sequence gets a gap and how to build the aligned sequences in the correct order. I found it helpful to look through my group members code alongside our pseudocode and work through how the different functions connected, rather than just focusing on each function individually.
