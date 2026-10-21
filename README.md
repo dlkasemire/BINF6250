@@ -131,26 +131,17 @@ GGGGAAAAAA
 The printed matrix contains two cells with the best score of 10: one at row 10 / column 10, which traces back to `GGGGAAAAAA`, and one in the bottom-right corner, which would trace back to `AAAAAACCCC`.
 
 # Successes
-* We agreed upon pseudocode written by Ildiko, and each of us wrote code that varied in different functions. The two implementations produced identical alignments and scores on both notebook tests, which served as an informal cross-check on correctness. The final version uses Dianah's approach of tracking the highest score while the matrix fills, which avoided extra NumPy functions and made `smith_waterman()` simpler.
+* We agreed upon pseudocode written by Ildiko, and each of us wrote code that varied in different functions. The three implementations produced identical alignments and scores on both notebook tests, which served as an informal cross-check on correctness. The final version uses Dianah's approach of tracking the highest score while the matrix fills, which avoided extra NumPy functions and made `smith_waterman()` simpler.
 * Two implementations also handled the diagonal score differently. Dianah's `cal_score()` first stores the match or mismatch value in its own variable (`pair_score`) and then adds it to the up-left neighbor in a single line, while Ildiko's version does the addition separately inside each branch of the `if`/`else`. Both give the same result, and comparing them showed how the same pseudocode step can be written more than one way.
-* Aamna created a different approach to `traceback()`: building each aligned sequence backward in a list and reversing it once at the end, instead of adding each letter to the front of a string as in Ildiko's and Dianah's versions. Both approaches put the letters in the correct order.
+* Aamna code created a different approach to `traceback()`: building each aligned sequence backward in a list and reversing it once at the end, instead of adding each letter to the front of a string as in Ildiko's and Dianah's versions. Both approaches put the letters in the correct order.
+* Our final version of code is a compilation of the three slightly different versions, selecting functions that we liked best from each version.
 * The final output for Test 1 matches the expected output exactly, including the whole-number formatting of the scoring matrix.
 * The scoring values are customizable, and the `cal_score()` test check uses non-default scoring (match +2, mismatch −1, gap −2) to confirm that custom values are applied correctly.
-* All three functions (cal_score, traceback and smith_waterman) work together, and our output matches the expected output for the slide example (AC-TTA / ACATTA).
-* Filling in the scoring matrix and tracing back by hand first made the pseudocode much easier to understand and turn into code.
-* Meeting as a team to discuss and work through the pseudocode helped us understand each step.
-* The scoring values (match, mismatch and gap) can be changed when calling the function, so the algorithm can be tested with different scoring strategies.
-* Recording the arrows in a separate traceback matrix made the traceback function simple: it just follows the arrows back to the start.
-* Reviewing each others code helped us understand why certain approaches worked and gave us a chance to discuss which implementations were easier to follow.
 
 # Struggles
-* At first, it was hard to turn the pseudocode into code. The variable names and indexes made it difficult to see what each line was doing until we worked an example by hand.
-* Indexing was confusing at first: Python counts from 0, and the matrix has an extra border row and column, so matrix row i matches seq1[i-1].
-* It took practice to remember that the match score only applies to the diagonal move, while up and left always use the gap penalty.
-* Traceback was also a little confusing at first, especially understanding which sequence gets a gap when moving up or left and how the aligned sequences are built in the correct order.
 * The starter materials contained inconsistencies that had to be resolved by decision rather than followed as written. The `traceback()` docstring reverses the gap directions (an UP move puts the gap in seq2, not seq1), and the instructions ask for the alignment score to be printed even though the provided function skeletons have no place for it. Our code follows the correct gap directions, and the score print was added to `smith_waterman()`.
 * Test 2 has no expected output and contains two cells tied for the best score. The program reports only the first one it finds, so a second, equally good alignment (`AAAAAACCCC`) goes unreported. Checking this result required reasoning through the printed matrix rather than comparing against a known answer.
-* Keeping the shared branch up to date took coordination. Work that is saved or committed locally but never pushed does not appear in a pull request, so the repository did not always reflect everyone's latest work.  We are still improving our GitHub skills.
+* Keeping the shared branch up to date took coordination. Work that is saved or committed locally but never pushed does not appear in a pull request, so the repository did not always reflect everyone's latest work. We are still improving our GitHub skills.
 
 # Reflection and Adaptive Learning
 * Choosing the matrix type involved a trade-off. A whole-number matrix matches the expected output's formatting, but it silently truncates decimal gap penalties: with a gap of −0.5, it returns a score of 10 instead of the correct 11, with no error. We chose whole numbers to match the test cases, so the program assumes whole-number scoring values without handling the edge case we considered. A next step would be to keep the decimal matrix for scoring and convert it to whole numbers only for display when every value is whole, or to have the function warn the user if a decimal scoring value is passed in.
