@@ -302,3 +302,7 @@ The Viterbi formula as given in the course primer, *A primer on HMMs* (Figure 3,
     #6. Return
     # the best path and its log probability
     return path, best_log_prob
+```
+Reflection narrative that describes what went right, what went wrong, what you didn't understand, how it could have been better, and how you could have been better.
+
+Appendix (AI usage, citations, etc.)
