@@ -6,9 +6,9 @@ Our program does this in four stages:
 
 1.  Set up and check the model: read the state names and alphabet from the input dictionaries (nothing hard-coded), check that the dictionaries agree and that every row sums to 1, then convert every probability to a log once. This stage should be applicable toward other HMM models.\
 
-Stage 2 - 4 is for Viterbi Algorithm specifically: 
-2. Initialize: fill the first column of the dynamic programming table with start probability + emission of the first symbol (in log space).
-3. Recurse: for every later position and every state, keep only the best way in from the previous column, store its score, and store a back-pointer to where it came from. 
+Stage 2 - 4 is for Viterbi Algorithm specifically: \
+2. Initialize: fill the first column of the dynamic programming table with initial probability + emission probability of the first symbol (in log space).\
+3. Recurse: for every later position and every state, keep only the best way in from the previous column, store its score, and store a back-pointer to where it came from. \
 4. Terminate and trace back: pick the best state in the last column, then follow the back-pointers to rebuild the full path.
 
 # Documentation and Results
@@ -23,7 +23,7 @@ Stage 2 - 4 is for Viterbi Algorithm specifically:
 
 Open `project08.ipynb` in Jupyter and run all cells in order, top to bottom (Kernel → Restart & Run All). The notebook is split into:\
 Imports: `math`\
-Model setup: `HMM` class with `__init__()`, `safe_log()`, `validate()`\
+Model setup: `HMM` class with `__init__()`, `safe_log()`, `_validate()`, `_convert_to_logs()`\
 Decoding: `HMM.viterbi()`\
 
 Example call:
@@ -80,40 +80,25 @@ Terms used throughout this README:
 ```         
 class HMM:
   def __init__(init_probs, trans_probs, emit_probs):
-    #1. Get the state names from the data, not hard-code them
+    #1. Save the three tables inside the model
+    save init_probs, trans_probs, emit_probs
+
+    #2. Get the state names from the data, not hard-code them
     # states = ['I', 'G']
     states = list of the keys of init_probs
+    # stop if there are no states at all
+    if states is empty:
+        raise error "init_probs has no states"
 
-    #2. Get the alphabet from every symbol any state can emit
+    #3. Get the alphabet from the emission probabilities of the first state
     # symbols = ['A', 'C', 'G', 'T']
-    symbols = sorted set of every key inside every emit_probs[s]
+    symbols = list of the keys of emit_probs[first state]
 
-    #3. Check the inputs before doing anything else
-    validate(init_probs, trans_probs, emit_probs)
+    #4. Check the inputs before doing anything else (function 3)
+    _validate()
 
-    #4. Convert every probability to a log, once, upfront
-    # (Viterbi reuses the same few numbers many times, so converting once is faster)
-
-    # Initial probabilities: one log per state
-    # example: log_init['G'] = ln(0.8) = -0.2231
-    for each state s:
-        log_init[s] = safe_log(init_probs[s])
-
-    # Transition probabilities: one log per pair of states (from i, to j)
-    # for the example: log_trans['G']['G'] = ln(0.9) = -0.1054
-    for each pair of states i, j:
-        log_trans[i][j] = safe_log(trans_probs[i][j])
-
-    # Emission probabilities: one log per state and symbol
-    # .get(symbol, 0): if a state doesn't list a symbol, use probability 0 (log = -inf)
-    # for the example: log_emit['I']['C'] = ln(0.4) = -0.9163
-    for each state s and each symbol in symbols:
-        log_emit[s][symbol] = safe_log(emit_probs[s].get(symbol, 0))
-
-    # after this, Viterbi only adds these logs and never calls log inside its loops
-
-    # store states, symbols, log_init, log_trans, log_emit on the object
-    # We anticipate that next project will reuse them
+    #5. Convert every probability to a log, once, upfront (function 4)
+    _convert_to_logs()
 ```
 
 2.  Safe log
@@ -137,14 +122,14 @@ class HMM:
 3.  Validate
 
 ```         
-  def validate(init_probs, trans_probs, emit_probs):
+  def _validate():
     #1. The keys must agree across all three dictionaries
     # catches typos like 'g' in one place and 'G' in another
     check keys of trans_probs == states
-    check keys of every trans_probs[i] == states
     check keys of emit_probs == states
-    # no real state may be called "BEGIN" (see function 4)
-    check "BEGIN" is not in states
+    check keys of every trans_probs[i] == states
+    # every state must list every symbol
+    check keys of every emit_probs[s] == symbols
 
     #2. Every value must be a real probability
     check every value is between 0 and 1
@@ -162,160 +147,158 @@ class HMM:
     #        init_probs = {'I': 0.2, 'G': 0.7} -> raises error (sums to 0.9)
 ```
 
-4.  Log transition probability, with a starting point
+4.  Convert to logs
 
 ```         
-  # BEGIN is a pretend starting state that comes before the first symbol
-  # it emits nothing; it only gives the first position somewhere to come from
-  # its name must not match any real state name (checked in validate)
-  BEGIN = "BEGIN"
+  def _convert_to_logs():
+    # Convert every probability to a log, once, upfront
+    # (Viterbi reuses the same few numbers many times, so converting once is faster)
 
-  def log_transition(from_state, to_state):
-    # one lookup for "the log probability of moving from from_state to to_state"
-    # it is a class method so other algorithms in later projects can reuse it
+    # Initial probabilities: one log per state
+    # example: log_init['G'] = ln(0.8) = -0.2231
+    for each state s:
+        log_init[s] = safe_log(init_probs[s])
 
-    # moving from BEGIN means "starting" in to_state: use the initial probability
-    # for the example: log_transition(BEGIN, 'G') = log_init['G'] = ln(0.8) = -0.2231
-    if from_state == BEGIN:
-        return log_init[to_state]
+    # Transition probabilities: one log per pair of states (from i, to j)
+    # for the example: log_trans['G']['G'] = ln(0.9) = -0.1054
+    for each pair of states i, j:
+        log_trans[i][j] = safe_log(trans_probs[i][j])
 
-    # moving between two real states: use the transition probability
-    # for the example: log_transition('G', 'G') = log_trans['G']['G'] = ln(0.9) = -0.1054
-    return log_trans[from_state][to_state]
+    # Emission probabilities: one log per state and symbol
+    # for the example: log_emit['I']['C'] = ln(0.4) = -0.9163
+    for each state s and each symbol in symbols:
+        log_emit[s][symbol] = safe_log(emit_probs[s][symbol])
 
-    # Check: log_transition(BEGIN, 'I') -> ln(0.2) = -1.6094
-    #        log_transition('I', 'G')   -> ln(0.3) = -1.2040
+    # after this, Viterbi only adds these logs and never calls log inside its loops
+
+    # store log_init, log_trans, log_emit on the object
+    # We anticipate that next project will reuse them
 ```
 
 ## Stage 2–4: Viterbi
 
-### The Viterbi formula (Durbin et al., 1998)
+### The Viterbi formula (from the course primer)
 
-Durbin et al.'s formal description, as given in lecture:
+The Viterbi formula as given in the course primer, *A primer on HMMs* (Figure 3, notation from Rabiner, 1989):
 
 | Step | Formula |
 |---|---|
-| Initialisation (i = 0) | `v_0(0) = 1,  v_k(0) = 0 for k > 0` |
-| Recursion (i = 1 … L) | `v_l(i) = e_l(x_i) * max_k( v_k(i-1) * a_kl )` |
-| | `ptr_i(l) = argmax_k( v_k(i-1) * a_kl )` |
-| Termination | `P(x,pi*) = max_k( v_k(L) * a_k0 ),  pi*_L = argmax_k( v_k(L) * a_k0 )` |
-| Traceback (i = L … 1) | `pi*_(i-1) = ptr_i(pi*_i)` |
+| Start | `delta_1(i) = pi_i * b_i(o_1),  psi_1(i) = 0,  1 <= i <= N` |
+| Move forward one position | `delta_t(j) = max_i( delta_(t-1)(i) * a_ij ) * b_j(o_t),  2 <= t <= T` |
+| | `psi_t(j) = argmax_i( delta_(t-1)(i) * a_ij ),  2 <= t <= T` |
+| Finish | `P* = max_i( delta_T(i) ),  q*_T = argmax_i( delta_T(i) )` |
+| Trace back | `q*_t = psi_(t+1)( q*_(t+1) ),  t = T-1, T-2, ..., 1` |
 
 ### What the symbols mean (and their names in our code)
 
 **Positions and states**
-- `x` = the observation sequence `x_1 … x_L` (`x`); `L` = its length (`L`)
-- `i` = the position, which letter we are on; `i = 0` means "before any letter"
-- `x_i` = the letter at position `i` (`x[i-1]`, because Python counts from 0)
-- `k` = a state we come **from**; `l` = a state we go **to**
-- `0` = BEGIN, a pretend starting state that emits nothing (`BEGIN`)
+- `O` = the observation sequence `o_1 … o_T` (`sequence`); `T` = its length (`n`)
+- `t` = the position, which letter we are on, counted from 1 (our code counts columns from 0, so position `t` is column `t - 1`)
+- `o_t` = the letter at position `t`
+- `i` = a state we come **from** (`state_before`); `j` = a state we go **to** (`state_now`); `N` = the number of states
 
-**Model probabilities** (built and checked once in Stage 1, by `safe_log()` and `validate()`)
-- `a_kl` = transition probability from state k to state l (`log_trans[k][l]`, through `log_transition(k, l)`)
-- `a_0l` = moving from BEGIN to l, which is our **initial probability** of l (`log_init[l]`, through `log_transition(BEGIN, l)`)
-- `a_k0` = moving into an END state; our input has none, so this is dropped (see below)
-- `e_l(x_i)` = emission probability of letter `x_i` in state l (`log_emit[l][x_i]`)
+**Model probabilities** (built and checked once in Stage 1, by `safe_log()`, `_validate()`, and `_convert_to_logs()`)
+- `pi_i` = initial probability of state i (`log_init[i]`)
+- `a_ij` = transition probability from state i to state j (`log_trans[i][j]`)
+- `b_j(o_t)` = emission probability of letter `o_t` in state j (`log_emit[j][o_t]`)
 
 **What Viterbi computes** (function 5)
-- `v_k(i)` = score of the best path for the first i letters that ends in state k (`V[k][i]`)
-- `ptr_i(l)` = the arrow: which state the best path into l at position i came from (`ptr[l][i]`)
-- `max_k` = the biggest value over every k (`best_score`); `argmax_k` = which k gave it (`best_prev`)
-- `pi*` = the best path, one state per letter (`path`); `pi*_L` = its last state (`pi_star_L`)
-- `P(x,pi*)` = the probability of the best path (`best_log_prob` stores its log)
+- `delta_t(j)` = score of the best path for the first t letters that ends in state j (`score[t-1][j]`)
+- `psi_t(j)` = the arrow: which state the best path into j at position t came from (`arrow[t-1][j]`); `psi_1(i) = 0` means no arrow (`None`)
+- `max_i` = the biggest value over every i (`best_road`); `argmax_i` = which i gave it (`best_from`)
+- `P*` = the probability of the best path (`best_log_prob` stores its log); `q*_T` = its last state (`best_last_state`); `q*` = the best path (`path`)
 
-### Two differences between the formula and our code
+### The difference between the formula and our code
 
-- **Logs instead of probabilities.** To avoid underflow, our code uses the log of every probability. So `*` becomes `+`, the max stays a max, `1` becomes `0`, and `0` becomes `-inf`. That is why `V`, `log_init`, `log_trans`, and `log_emit` all hold logs.
-- **No END state.** Durbin's termination multiplies by `a_k0`, a move into an END state. Our input has no END state, and when the end is not modelled this term disappears. So our termination just picks the biggest score in the last column.
+- **Logs instead of probabilities.** To avoid underflow, our code uses the log of every probability. So `*` becomes `+`, the max stays a max, and probability `0` becomes `-inf`. That is why `score`, `log_init`, `log_trans`, and `log_emit` all hold logs.
 
 ### Pseudocode
 
 ```         
-   #example: x = "GGCACTGAA", L = 9, states = I, G
+   #example: sequence = "GGCACTGAA", n = 9, states = I, G
 ```
 
-5.  Viterbi decoding (Durbin et al., in log units)
+5.  Viterbi decoding (in log units)
 
 ```         
-  def viterbi(x):
+  def viterbi(sequence):
     #1. Preparation:
-    # Check the input x and its letters: 
-    if x is empty:
-        raise error "empty observation"
-    for each symbol in x:
+    # Check the input sequence and its letters: 
+    if sequence is empty:
+        raise error "empty sequence"
+    for each symbol in sequence:
         if symbol is not in symbols:
             raise error "unknown symbol"
 
-    # Set up the 2 matrices: V for best-scores-in-logs and ptr for traceback direction 
-    rows = [BEGIN] + states
-    L = length of x
-    V = table with one row per item in rows, columns 0 to L
-    ptr = table with one row per item in rows, columns 0 to L
+    # Set up the 2 matrices: score for best-scores-in-logs and arrow for traceback direction 
+    n = length of sequence
+    # one column per letter, columns 0 to n-1 (Python counts from 0, so column t holds sequence[t])
+    score = table with one row per state, columns 0 to n-1
+    arrow = table with one row per state, columns 0 to n-1
 
     #2. Initialisation 
-    # before any symbol we are in BEGIN: log(1) = 0
-    V[BEGIN][0] = 0
-    # and not in any real state: log(0) = -inf
-    for each state k:
-        V[k][0] = -inf
-    # nothing moves back into BEGIN, so its later columns stay -inf
-    for i from 1 to L:
-        V[BEGIN][i] = -inf
+    # the first letter has no previous column, so use the initial probability
+    first = sequence[0]
+    for each state s:
+        # cell score = log initial probability + log emission probability of the first letter
+        # example: score[0]['G'] = ln(0.8) + ln(0.2) = -1.8326
+        score[0][s] = log_init[s] + log_emit[s][first]
+        # no arrow: nothing comes before the first letter
+        arrow[0][s] = None
 
     #3. Recursion
-    # fill both tables column by column, left to right (one letter at a time)
-    for i from 1 to L:
-        # the letter for this column (Python starts counting at 0)
-        symbol = x[i-1]
-        # fill one cell: state l at column i
-        for each state l:
+    # fill both tables column by column, left to right, starting from the second letter
+    for t from 1 to n-1:
+        # the letter for this column
+        symbol = sequence[t]
+        # fill one cell: state_now at column t
+        for each state_now:
             # start with the worst possible score
-            best_score = -inf
+            best_road = -inf
             # no arrow yet
-            best_prev = None
-            # try every way in: each state k in the previous column (BEGIN too)
-            for each k in rows:
-                # score of this way in = score of cell k + log transition probability from k to l
-                # example: i = 1, l = 'G', k = BEGIN: 0 + ln(0.8) = -0.2231
-                candidate = V[k][i-1] + log_transition(k, l)
+            best_from = None
+            # try every way in: each state_before in the previous column
+            for each state_before:
+                # score of this way in = score of cell state_before + log transition probability from state_before to state_now
+                # example: t = 1, state_now = 'I', state_before = 'I': -2.5257 + ln(0.7) = -2.8824
+                road = score[t-1][state_before] + log_trans[state_before][state_now]
                 # if this way in is the best so far, keep it
-                if candidate > best_score:
+                if road > best_road:
                     # keep its score
-                    best_score = candidate
-                    # keep its arrow (which k it came from)
-                    best_prev = k
+                    best_road = road
+                    # keep its arrow (which state_before it came from)
+                    best_from = state_before
             # cell score = best way in + log emission probability of this letter
             # (added once, after the loop, because it is the same for every way in)
-            # example: i = 1, l = 'G': -0.2231 + ln(0.2) = -1.8326
-            V[l][i] = log_emit[l][symbol] + best_score
+            # example: t = 1, state_now = 'I': -2.8824 + ln(0.4) = -3.7987
+            score[t][state_now] = best_road + log_emit[state_now][symbol]
             # cell arrow = where the best way in came from
-            # example: i = 1, l = 'G': BEGIN
-            ptr[l][i] = best_prev
+            # example: t = 1, state_now = 'I': 'I'
+            arrow[t][state_now] = best_from
 
     #4. Termination
     # the best path ends in the state with the biggest score in the last column
-    # (no END state in our input, so Durbin's a_k0 is dropped)
     # example: I = -17.2249, G = -13.9291 => ends in 'G'
-    pi_star_L = the state k with the largest V[k][L]
+    best_last_state = the state with the largest score[n-1]
     # the score of the best path
-    best_log_prob = V[pi_star_L][L]
+    best_log_prob = score[n-1][best_last_state]
     # if even the best score is -inf, every path is impossible: stop
     if best_log_prob == -inf:
-        raise error "no possible path for this observation"
+        raise error "no possible path for this sequence"
 
     #5. Traceback
     # start at the last state and follow the arrows back
-    path = [pi_star_L]
-    # go back one column at a time; stop at column 2, because column 1's arrow points to BEGIN
-    for i from L down to 2:
-        # add the state the arrow points to
-        append ptr[last item of path][i] to path
+    path = empty list
+    standing_on = best_last_state
+    # go back one column at a time, from the last column down to column 0
+    for t from n-1 down to 0:
+        # add the state we are standing on
+        append standing_on to path
+        # read its arrow and jump to that state one column left (column 0's arrow is None)
+        standing_on = arrow[t][standing_on]
     # we collected the path backwards, so flip it
     reverse path
 
     #6. Return
     # the best path and its log probability
     return path, best_log_prob
-    
-    # Check: will do this whenever im done with the code writing 
-```
