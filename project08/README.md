@@ -339,35 +339,35 @@ The Viterbi formula as given in the course primer, *A primer on HMMs* (Figure 3,
 
 # Reflection narrative
 
-### What went right:
+## What went right:
 
-**Program worked**
+### Program worked
 All 21 tests pass: the code reproduces the answers we worked out by hand, and on every sequence we tried, with both 2 and 3 states, it finds the same best path as brute force, which checks every possible path one by one. Our way of working also paid off. Because we each wrote our own pseudocode first and then compared them, we could see that both versions gave exactly the same results, and that let us confidently choose the simpler one.
 
-**How our code answers some the project's design questions and notes**
+### How our code answers some the project's design questions and notes
 Our code uses only the four data structures the project gives us and makes no assumptions about what they model. **init**() takes the states from init_probs and the symbols from the emission probabilities, so nothing is hard-coded, and _validate() then checks that the keys match across all three dictionaries, that every value is between 0 and 1, and that every row adds up to 1. Because of this, the same class runs the CpG example, the course primer’s model (with different states and symbols), and a three-state model without any changes. Before decoding, _convert_to_logs() turns every probability into a log once, which keeps long sequences from underflowing; the max still picks the right winner, because log keeps the same order (if a > b, then log a > log b). 
 
 A probability of 0 becomes -inf through safe_log(), so an impossible event stays impossible, which we test with an initial probability of 0 and with a model where every path is impossible. viterbi() returns both the best path and its log probability rather than the plain probability, since the plain probability drops to 0.0 on long sequences. If the observation contains a symbol no state can emit, it stops with an “unknown symbol” error instead of returning a path that looks real but means nothing. Its three nested loops take O(N × K²) time, and its score and arrow tables use O(N × K) memory. Finally, our first tests are the hand-checkable answers the project asks for: G gives a probability of 0.16 and GG gives 0.0288, the same numbers we worked out on paper.
 
-### Our Limitations and how it could be improved:
+## Our Limitations and how it could be improved:
 
 A few parts of the project page are not fully covered by our design. We store the model’s parts on the class so that later algorithms can reuse them, but Forward, Backward, and Baum-Welch are not built yet, so we have not tested how well the class extends (design question 2). For zero probabilities, we chose -inf through safe_log() and did not try pseudocounts to compare the two approaches. Our viterbi() returns a single best path and gives no measure of how confident we can be in each label, so we did not explore whether the most probable path can differ from the most probable state at each position; the page says Project 09 will answer this. If two paths tie for the best score, the code keeps the first state in dictionary order without reporting the tie. Finally, because the symbols come from the first state’s emission probabilities, every state must list every symbol, and if the first state is the one missing a symbol, the error message names a different state. 
 
-### What we still didn't understand : 
+## What we still didn't understand : 
 
-**Ties
+### Ties
 When two ways into a cell have exactly the same score, our code keeps the first one (`road > best_road`), and `max(...)` does the same at the end. The path it returns is still a most likely path, but if other paths are equally likely, the code doesn't tell the user. We're not sure whether that matters in practice, or how tools usually report it.
 
-**Checking correctness on long sequences.**
+### Checking correctness on long sequences:
 Our brute-force test proves Viterbi matches the best of every possible path, but only for short sequences, since the number of paths doubles with each symbol. For long sequences we can only check that the score isn't -inf, not that the path is right.
 
-**Choosing tolerances**
+### Choosing tolerances:
 We used 1e-6 to check that rows add up to 1, 1e-4 to compare our scores with hand-calculated values, and 1e-9 to compare with brute force. Each worked, but we picked them by judgment rather than by a rule. Each tolerance was chosen to be larger than the error we expected in that comparison, but much smaller than a real mistake. We're not sure whether there's a more standard way to choose them.
 
-**Every state must list every symbol**
+### Every state must list every symbol:
 `_validate` requires each emission row to include every symbol, even if its probability is 0. We aren't sure whether a real model might reasonably leave symbols out, and whether we should allow that (treating a missing symbol as probability 0).
 
-### Personal Reflection: 
+## Personal Reflection: 
 
 -   Trang Do: Dianah and I enjoyed working together, and being in the same time zone made planning easy. In our first meeting, we worked through the example by hand. Doing it this way made the algorithm click for us in a way the formula alone didn’t, and it gave us expected values (0.16 for G and 0.0288 for GG) that later became our first tests. After that, we each wrote our own pseudocode. Mine followed Durbin et al.’s formula from the lecture slide, including a silent BEGIN state and an extra column 0 before the first letter. Dianah’s skipped BEGIN and filled the first column directly with the initial probability times the emission probability. When we compared them, both gave exactly the same results, but hers was simpler. Honestly, although I thought I understood the BEGIN part of my own version, I could barely explain it back, and if it confused me, it would probably confuse a reviewer too. So we went with Dianah’s version. I built on her notebook by adding four checks (brute force, a three-state model, an initial probability of 0, and an impossible path) plus two underflow checks, and I changed her tests to print PASS or FAIL for each one.
 
