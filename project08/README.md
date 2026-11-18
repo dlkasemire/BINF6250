@@ -4,11 +4,11 @@ This project implements the Viterbi algorithm for hidden Markov models (HMMs). A
 
 Our program does this in four stages:
 
-1.  Set up and check the model: read the state names and alphabet from the input dictionaries (nothing hard-coded), check that the dictionaries agree and that every row sums to 1, then convert every probability to a log once. This stage should be applicable toward other HMM models.\
+1.  Set up and check the model: read the state names and alphabet from the input dictionaries (nothing hard-coded), check that the dictionaries agree and that every row sums to 1, then convert every probability to a log once. This stage should be applicable toward other HMM models.
 
-Stage 2 - 4 is for Viterbi Algorithm specifically:\
-2. Initialize: fill the first column of the dynamic programming table with initial probability + emission probability of the first symbol (in log space).\
-3. Recurse: for every later position and every state, keep only the best way in from the previous column, store its score, and store a back-pointer to where it came from.\
+Stage 2 - 4 is for Viterbi Algorithm specifically:
+2. Initialize: fill the first column of the dynamic programming table with initial probability + emission probability of the first symbol (in log space).
+3. Recurse: for every later position and every state, keep only the best way in from the previous column, store its score, and store a back-pointer to where it came from.
 4. Terminate and trace back: pick the best state in the last column, then follow the back-pointers to rebuild the full path.
 
 # Documentation and Results
@@ -22,11 +22,11 @@ Stage 2 - 4 is for Viterbi Algorithm specifically:\
 
 ### Usage
 
-Open `project08.ipynb` in Jupyter and run all cells in order, top to bottom (Kernel → Restart & Run All). The notebook is split into:\
-1. Imports and settings: `math`, `itertools`, `NEG_INF`, `TOLERANCE`\
-2. The `HMM` class: `__init__()`, `safe_log()`, `_validate()`, `_convert_to_logs()`, `viterbi()`\
-3. Demonstration on the example data\
-4. Tests: one cell with every test, each printing PASS or FAIL\
+Open `project08.ipynb` in Jupyter and run all cells in order, top to bottom (Kernel → Restart & Run All). The notebook is split into:
+1. Imports and settings: `math`, `itertools`, `NEG_INF`, `TOLERANCE`
+2. The `HMM` class: `__init__()`, `safe_log()`, `_validate()`, `_convert_to_logs()`, `viterbi()`
+3. Demonstration on the example data
+4. Tests: one cell with every test, each printing PASS or FAIL
 
 Example call:
 
@@ -86,11 +86,11 @@ probability : 8.926e-07
 
 3.  **Why this sequence stays in background state (G).** Its only C/G run (G G C) is short and is followed by A's and T's, so leaving the island costs more than the run earns.
 
-4.  **Tests**: All 21 tests in the notebook pass. Each group of tests checks a different part of the code, so together they give us confidence that the whole program works.\
-    The hand-checked tests show that the math in each step is right, since the code gives the same numbers we got on paper.\
-    Brute force shows that Viterbi really finds the best path: on every short sequence we tried, it chose the same path as checking all possible paths one by one, with 2 and 3 states.\
-    The primer’s model shows the code isn’t tied to our example, since it works with different states and symbols and matches a published answer.\
-    The error tests show that bad input stops the code with a clear message instead of giving a wrong path, and the long-sequence and underflow tests show that working in logs keeps the scores usable even when plain probabilities would drop to zero.\
+4.  **Tests**: All 21 tests in the notebook pass. Each group of tests checks a different part of the code, so together they give us confidence that the whole program works.
+    The hand-checked tests show that the math in each step is right, since the code gives the same numbers we got on paper.
+    Brute force shows that Viterbi really finds the best path: on every short sequence we tried, it chose the same path as checking all possible paths one by one, with 2 and 3 states.
+    The primer’s model shows the code isn’t tied to our example, since it works with different states and symbols and matches a published answer.
+    The error tests show that bad input stops the code with a clear message instead of giving a wrong path, and the long-sequence and underflow tests show that working in logs keeps the scores usable even when plain probabilities would drop to zero.
     Passing these tests does not prove the code is correct in every possible case: they cover the cases we thought to check, and brute force can only confirm short sequences.
 
 # Pseudocode
@@ -241,7 +241,7 @@ The Viterbi formula as given in the course primer, *A primer on HMMs* (Figure 3,
 
 -   `max_i` = the biggest value over every i (`best_road`); `argmax_i` = which i gave it (`best_from`)
 
--   `P*` = the probability of the best path (`best_log_prob` stores its log); `q*_T` = its last state (`best_last_state`); `q*` = the best path (`path`) \### The difference between the formula and our code
+-   `P*` = the probability of the best path (`best_log_prob` stores its log); `q*_T` = its last state (`best_last_state`); `q*` = the best path (`path`) ### The difference between the formula and our code
 
 **Logs instead of probabilities.** To avoid underflow, our code uses the log of every probability. So `*` becomes `+`, the max stays a max, and probability `0` becomes `-inf`. That is why `score`, `log_init`, `log_trans`, and `log_emit` all hold logs.
 
@@ -341,26 +341,41 @@ The Viterbi formula as given in the course primer, *A primer on HMMs* (Figure 3,
 
 ### What went right:
 
-**Program worked**\
-All 21 tests pass: the code reproduces the answers we worked out by hand, and on every sequence we tried, with both 2 and 3 states, it finds the same best path as brute force, which checks every possible path one by one. Our way of working also paid off. Because we each wrote our own pseudocode first and then compared them, we could see that both versions gave exactly the same results, and that let us confidently choose the simpler one.\
-**How our code answers some the project's design questions and notes**\
-Our code uses only the four data structures the project gives us and makes no assumptions about what they model. **init**() takes the states from init_probs and the symbols from the emission probabilities, so nothing is hard-coded, and \_validate() then checks that the keys match across all three dictionaries, that every value is between 0 and 1, and that every row adds up to 1. Because of this, the same class runs the CpG example, the course primer’s model (with different states and symbols), and a three-state model without any changes. Before decoding, \_convert_to_logs() turns every probability into a log once, which keeps long sequences from underflowing; the max still picks the right winner, because log keeps the same order (if a \> b, then log a \> log b). A probability of 0 becomes -inf through safe_log(), so an impossible event stays impossible, which we test with an initial probability of 0 and with a model where every path is impossible. viterbi() returns both the best path and its log probability rather than the plain probability, since the plain probability drops to 0.0 on long sequences. If the observation contains a symbol no state can emit, it stops with an “unknown symbol” error instead of returning a path that looks real but means nothing. Its three nested loops take O(N × K²) time, and its score and arrow tables use O(N × K) memory. Finally, our first tests are the hand-checkable answers the project asks for: G gives a probability of 0.16 and GG gives 0.0288, the same numbers we worked out on paper.
+**Program worked**
+All 21 tests pass: the code reproduces the answers we worked out by hand, and on every sequence we tried, with both 2 and 3 states, it finds the same best path as brute force, which checks every possible path one by one. Our way of working also paid off. Because we each wrote our own pseudocode first and then compared them, we could see that both versions gave exactly the same results, and that let us confidently choose the simpler one.
+
+**How our code answers some the project's design questions and notes**
+Our code uses only the four data structures the project gives us and makes no assumptions about what they model. **init**() takes the states from init_probs and the symbols from the emission probabilities, so nothing is hard-coded, and _validate() then checks that the keys match across all three dictionaries, that every value is between 0 and 1, and that every row adds up to 1. Because of this, the same class runs the CpG example, the course primer’s model (with different states and symbols), and a three-state model without any changes. Before decoding, _convert_to_logs() turns every probability into a log once, which keeps long sequences from underflowing; the max still picks the right winner, because log keeps the same order (if a > b, then log a > log b). A probability of 0 becomes -inf through safe_log(), so an impossible event stays impossible, which we test with an initial probability of 0 and with a model where every path is impossible. viterbi() returns both the best path and its log probability rather than the plain probability, since the plain probability drops to 0.0 on long sequences. If the observation contains a symbol no state can emit, it stops with an “unknown symbol” error instead of returning a path that looks real but means nothing. Its three nested loops take O(N × K²) time, and its score and arrow tables use O(N × K) memory. Finally, our first tests are the hand-checkable answers the project asks for: G gives a probability of 0.16 and GG gives 0.0288, the same numbers we worked out on paper.
 
 ### Our Limitations and how it could be improved:
 
-A few parts of the project page are not fully covered by our design. We store the model’s parts on the class so that later algorithms can reuse them, but Forward, Backward, and Baum-Welch are not built yet, so we have not tested how well the class extends (design question 2). For zero probabilities, we chose -inf through safe_log() and did not try pseudocounts to compare the two approaches. Our viterbi() returns a single best path and gives no measure of how confident we can be in each label, so we did not explore whether the most probable path can differ from the most probable state at each position; the page says Project 09 will answer this. If two paths tie for the best score, the code keeps the first state in dictionary order without reporting the tie. Finally, because the symbols come from the first state’s emission probabilities, every state must list every symbol, and if the first state is the one missing a symbol, the error message names a different state. \
+A few parts of the project page are not fully covered by our design. We store the model’s parts on the class so that later algorithms can reuse them, but Forward, Backward, and Baum-Welch are not built yet, so we have not tested how well the class extends (design question 2). For zero probabilities, we chose -inf through safe_log() and did not try pseudocounts to compare the two approaches. Our viterbi() returns a single best path and gives no measure of how confident we can be in each label, so we did not explore whether the most probable path can differ from the most probable state at each position; the page says Project 09 will answer this. If two paths tie for the best score, the code keeps the first state in dictionary order without reporting the tie. Finally, because the symbols come from the first state’s emission probabilities, every state must list every symbol, and if the first state is the one missing a symbol, the error message names a different state. 
 
 ### What we still didn't understand : 
+
+**Ties**
+When two ways into a cell have exactly the same score, our code keeps the first one (`road > best_road`), and `max(...)` does the same at the end. The path it returns is still a most likely path, but if other paths are equally likely, the code doesn't tell the user. We're not sure whether that matters in practice, or how tools usually report it.
+
+**Checking correctness on long sequences.**
+Our brute-force test proves Viterbi matches the best of every possible path, but only for short sequences, since the number of paths doubles with each symbol. For long sequences we can only check that the score isn't -inf, not that the path is right.
+
+**Choosing tolerances**
+We used 1e-6 to check that rows add up to 1, 1e-4 to compare our scores with hand-calculated values, and 1e-9 to compare with brute force. Each worked, but we picked them by judgment rather than by a rule. Each tolerance was chosen to be larger than the error we expected in that comparison, but much smaller than a real mistake. We're not sure whether there's a more standard way to choose them.
+
+**Every state must list every symbol**
+`_validate` requires each emission row to include every symbol, even if its probability is 0. We aren't sure whether a real model might reasonably leave symbols out, and whether we should allow that (treating a missing symbol as probability 0).
 
 ### Personal Reflection: 
 
 -   Trang Do: Dianah and I enjoyed working together, and being in the same time zone made planning easy. In our first meeting, we worked through the example by hand. Doing it this way made the algorithm click for us in a way the formula alone didn’t, and it gave us expected values (0.16 for G and 0.0288 for GG) that later became our first tests. After that, we each wrote our own pseudocode. Mine followed Durbin et al.’s formula from the lecture slide, including a silent BEGIN state and an extra column 0 before the first letter. Dianah’s skipped BEGIN and filled the first column directly with the initial probability times the emission probability. When we compared them, both gave exactly the same results, but hers was simpler. Honestly, although I thought I understood the BEGIN part of my own version, I could barely explain it back, and if it confused me, it would probably confuse a reviewer too. So we went with Dianah’s version. I built on her notebook by adding four checks (brute force, a three-state model, an initial probability of 0, and an impossible path) plus two underflow checks, and I changed her tests to print PASS or FAIL for each one.
 
+-   Dianah Kasemire: This project was a little confusing at the start, but working together with Trang made things simpler. We met up and worked through the task by hand which gave a clearer picture of what the movement was like. It still gets a bit confusing as you continue moving along the table because of the many numbers and how the maths is done, but knowing the concept helped. Starting the pseudocode was another challenge altogether. Breaking it into small parts helped: setting up the model, filling the first column, filling the rest of the columns, and then tracing back. The trace back confused me the longest. I first thought you read all the arrows along one row, but each arrow belongs only to its own box, so you follow the arrow of the box you are standing on. Going through the code one line at a time helped a lot, and testing it against the values we worked out by hand showed it was doing the same thing we did on paper.
+
 # Appendix (AI usage, citations, etc.)
 
 ### AI usage
 
-We used Claude (Anthropic, Claude Opus 5.5) during November 2026 to provide guidance while we worked through the example by hand. We also used Claude to structure our notebook Markdown (the formula section, the symbol list, and the test list). We had also used Claude to review our code and whether it had addressed all of the design requirement given in the assignment. Outside of project 08, we also had used it to help summarized and provide detailed explanation of what we might not understand fully in the provided reading "A primer on HMMs: From one picture to five algorithms." \
+We used Claude (Anthropic, Claude Opus 5.5) during November 2026 to provide guidance while we worked through the example by hand. We also used Claude to structure our notebook Markdown (the formula section, the symbol list, and the test list). We had also used Claude to review our code and whether it had addressed all of the design requirement given in the assignment. Outside of project 08, we also had used it to help summarized and provide detailed explanation of what we might not understand fully in the provided reading "A primer on HMMs: From one picture to five algorithms."
 
 ### Citations 
 
